@@ -1,1 +1,0 @@
-/home/moni/Desktop/github/DDOS-Study-Notes/scripts/ping-of-death/rust/ping-of-death/target/debug/ping-of-death: /home/moni/Desktop/github/DDOS-Study-Notes/scripts/ping-of-death/rust/ping-of-death/src/main.rs
